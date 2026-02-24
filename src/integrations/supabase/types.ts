@@ -21,6 +21,7 @@ export type Database = {
           adsgram_block_id: string | null
           daily_reward_points: number
           id: string
+          interstitial_block_id: string | null
           min_withdraw_stars: number
           min_withdraw_ton: number
           referral_reward_points: number
@@ -32,6 +33,7 @@ export type Database = {
           adsgram_block_id?: string | null
           daily_reward_points?: number
           id?: string
+          interstitial_block_id?: string | null
           min_withdraw_stars?: number
           min_withdraw_ton?: number
           referral_reward_points?: number
@@ -43,6 +45,7 @@ export type Database = {
           adsgram_block_id?: string | null
           daily_reward_points?: number
           id?: string
+          interstitial_block_id?: string | null
           min_withdraw_stars?: number
           min_withdraw_ton?: number
           referral_reward_points?: number

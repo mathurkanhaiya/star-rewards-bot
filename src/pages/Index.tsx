@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { UserProvider } from "@/context/UserContext";
+import { useState, useEffect } from "react";
+import { UserProvider, useUser } from "@/context/UserContext";
 import BottomNav from "@/components/BottomNav";
 import HomeTab from "@/components/tabs/HomeTab";
 import EarnTab from "@/components/tabs/EarnTab";
@@ -8,11 +8,29 @@ import ReferralsTab from "@/components/tabs/ReferralsTab";
 import WithdrawTab from "@/components/tabs/WithdrawTab";
 import AdminTab from "@/components/tabs/AdminTab";
 
+function InterstitialLoader() {
+  const { settings } = useUser();
+
+  useEffect(() => {
+    if (!settings) return;
+    const blockId = settings.interstitial_block_id || "int-23614";
+    try {
+      const AdController = (window as any).Adsgram?.init?.({ blockId });
+      if (AdController) {
+        AdController.show().catch(() => {});
+      }
+    } catch {}
+  }, [settings]);
+
+  return null;
+}
+
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
 
   return (
     <UserProvider>
+      <InterstitialLoader />
       <div className="min-h-screen bg-background gradient-hero pb-20 max-w-lg mx-auto">
         {/* Header */}
         <header className="px-4 pt-4 pb-2 flex items-center gap-2">
