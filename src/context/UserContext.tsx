@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { supabase } from "@/integrations/supabase/client";
 
 interface TgUser {
@@ -97,9 +98,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Check referral
-    const params = new URLSearchParams(window.location.search);
-    const refCode = params.get("ref");
+    // Check referral - Telegram Mini Apps pass startapp param via WebApp API
+    let refCode: string | null = null;
+    try {
+      const tg = (window as any).Telegram?.WebApp;
+      const startParam = tg?.initDataUnsafe?.start_param;
+      if (startParam && startParam.startsWith("ref_")) {
+        refCode = startParam.replace("ref_", "");
+      }
+    } catch {}
+    // Fallback for dev/browser testing
+    if (!refCode) {
+      const params = new URLSearchParams(window.location.search);
+      refCode = params.get("ref");
+    }
     let referredById: string | null = null;
 
     if (refCode) {
@@ -141,7 +153,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     if (!telegramId) return;
     const { data } = await supabase
       .from("tg_users")
@@ -149,7 +161,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
       .eq("telegram_id", telegramId)
       .single();
     if (data) setUser(data as unknown as TgUser);
-  };
+  }, [telegramId]);
+
+  const refreshSettings = useCallback(async () => {
+    const { data } = await supabase.from("app_settings").select("*").limit(1).single();
+    if (data) setSettings(data as unknown as AppSettings);
+  }, []);
+
+  // Realtime: auto-refresh user & settings on any DB change
+  useRealtimeTable("tg_users", refreshUser);
+  useRealtimeTable("app_settings", refreshSettings);
 
   useEffect(() => {
     const init = async () => {
