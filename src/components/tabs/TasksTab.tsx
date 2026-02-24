@@ -1,7 +1,8 @@
 import { useUser } from "@/context/UserContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { ExternalLink, CheckCircle2 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 interface Task {
@@ -20,11 +21,7 @@ export default function TasksTab() {
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchTasks();
-  }, [user]);
-
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     if (!user) return;
     const { data: tasksData } = await supabase
       .from("tasks")
@@ -39,7 +36,14 @@ export default function TasksTab() {
     setTasks((tasksData || []) as unknown as Task[]);
     setCompletedIds(new Set((completions || []).map((c: any) => c.task_id)));
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  useRealtimeTable("tasks", fetchTasks);
+  useRealtimeTable("task_completions", fetchTasks);
 
   const completeTask = async (task: Task) => {
     if (completedIds.has(task.id) || completing) return;

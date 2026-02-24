@@ -1,7 +1,8 @@
 import { useUser } from "@/context/UserContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Wallet, ArrowUpRight, Clock, CheckCircle2, XCircle } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 interface Withdrawal {
@@ -22,19 +23,22 @@ export default function WithdrawTab() {
   const [loading, setLoading] = useState(false);
   const [historyLoading, setHistoryLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) fetchWithdrawals();
-  }, [user]);
-
-  const fetchWithdrawals = async () => {
+  const fetchWithdrawals = useCallback(async () => {
+    if (!user) return;
     const { data } = await supabase
       .from("withdrawals")
       .select("*")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .order("created_at", { ascending: false });
     setWithdrawals((data || []) as unknown as Withdrawal[]);
     setHistoryLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) fetchWithdrawals();
+  }, [fetchWithdrawals, user]);
+
+  useRealtimeTable("withdrawals", fetchWithdrawals);
 
   if (!user || !settings) return null;
 

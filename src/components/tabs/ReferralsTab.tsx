@@ -1,7 +1,8 @@
 import { useUser } from "@/context/UserContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useRealtimeTable } from "@/hooks/useRealtimeTable";
 import { Copy, Users, UserPlus } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 
 interface Referral {
@@ -16,23 +17,25 @@ export default function ReferralsTab() {
   const [referrals, setReferrals] = useState<Referral[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (user) fetchReferrals();
-  }, [user]);
-
-  const fetchReferrals = async () => {
+  const fetchReferrals = useCallback(async () => {
+    if (!user) return;
     const { data } = await supabase
       .from("tg_users")
       .select("id, first_name, username, created_at")
-      .eq("referred_by", user!.id);
+      .eq("referred_by", user.id);
     setReferrals((data || []) as unknown as Referral[]);
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) fetchReferrals();
+  }, [fetchReferrals, user]);
+
+  useRealtimeTable("tg_users", fetchReferrals);
 
   if (!user || !settings) return null;
 
-  const botUsername = "TonxstarRewardsbot";
-  const referralLink = `https://t.me/${botUsername}?start=ref_${user.referral_code}`;
+  const referralLink = `https://t.me/TonxstarRewardsbot/app?startapp=ref_${user.referral_code}`;
 
   const copyLink = () => {
     navigator.clipboard.writeText(referralLink);
