@@ -280,6 +280,7 @@ function SettingsSection() {
       min_withdraw_ton: settings.min_withdraw_ton,
       min_withdraw_stars: settings.min_withdraw_stars,
       adsgram_block_id: settings.adsgram_block_id,
+      interstitial_block_id: settings.interstitial_block_id,
       ad_cooldown_seconds: settings.ad_cooldown_seconds,
     }).eq("id", settings.id);
     toast.success("Settings saved!");
@@ -294,7 +295,8 @@ function SettingsSection() {
     { key: "referral_reward_points", label: "Referral Reward Points", type: "number" },
     { key: "min_withdraw_ton", label: "Min Withdraw (TON)", type: "number" },
     { key: "min_withdraw_stars", label: "Min Withdraw (Stars)", type: "number" },
-    { key: "adsgram_block_id", label: "Adsgram Block ID", type: "text" },
+    { key: "adsgram_block_id", label: "Rewarded Ad Block ID", type: "text" },
+    { key: "interstitial_block_id", label: "Interstitial Ad Block ID", type: "text" },
     { key: "ad_cooldown_seconds", label: "Ad Cooldown (seconds)", type: "number" },
   ];
 

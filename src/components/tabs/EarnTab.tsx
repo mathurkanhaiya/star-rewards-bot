@@ -54,18 +54,17 @@ export default function EarnTab() {
     }
     setAdLoading(true);
     try {
-      // Adsgram integration placeholder
-      if (settings.adsgram_block_id) {
-        try {
-          const AdController = (window as any).Adsgram?.init?.({
-            blockId: settings.adsgram_block_id,
-          });
-          if (AdController) {
-            await AdController.show();
-          }
-        } catch {
-          // Ad not available, still reward in dev
+      // Adsgram rewarded ad
+      const blockId = settings.adsgram_block_id || "23615";
+      try {
+        const AdController = (window as any).Adsgram?.init?.({
+          blockId,
+        });
+        if (AdController) {
+          await AdController.show();
         }
+      } catch {
+        // Ad not available, still reward in dev
       }
 
       await supabase

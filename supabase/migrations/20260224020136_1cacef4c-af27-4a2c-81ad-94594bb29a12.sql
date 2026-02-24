@@ -1,0 +1,1 @@
+ALTER TABLE public.app_settings ADD COLUMN interstitial_block_id text DEFAULT 'int-23614';

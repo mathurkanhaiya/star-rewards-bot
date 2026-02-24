@@ -24,6 +24,7 @@ interface AppSettings {
   min_withdraw_stars: number;
   adsgram_block_id: string;
   ad_cooldown_seconds: number;
+  interstitial_block_id: string;
 }
 
 interface UserContextType {
